@@ -28,7 +28,7 @@ For example, given the function
 
 $$f(x) = x \cdot \textrm{cos}(\pi x) \textrm{ for } -1.0 \leq x \leq 2.0,$$
 
-![Function Plot](images/LocalMinima.svg)
+![Function Plot](Images/LocalMinima.svg)
 
 we can approximate the local minimum and global minimum of this function.
 ### 🔹 Impact:
@@ -44,6 +44,10 @@ we can approximate the local minimum and global minimum of this function.
 ## 2️⃣ Saddle Points
 Saddle points occur when the gradient is **zero**, but the point is **not a minimum** (it is higher in some directions and lower in others). In high-dimensional spaces, saddle points are more common than local minima.
 
+Consider the function $f(x, y) = x^2 - y^2$. It has its saddle point at $(0, 0)$. This is a maximum with respect to $y$ and a minimum with respect to $x$. Moreover, it *looks* like a saddle, which is where this mathematical property got its name.
+
+![Function Plot](Images/Saddlepoint.svg)
+
 ### 🔹 Impact:
 - Slows down training, as gradients become small and updates become inefficient.
 - Can cause optimization algorithms to stall.
@@ -56,6 +60,11 @@ Saddle points occur when the gradient is **zero**, but the point is **not a mini
 
 ## 3️⃣ Vanishing Gradients
 Vanishing gradients occur when gradients **become too small** during backpropagation, especially in deep networks. This makes it hard for earlier layers to learn meaningful representations.
+
+For instance, assume that we want to minimize the function $f(x) = \tanh(x)$ and we happen to get started at $x = 4$. As we can see, the gradient of $f$ is close to nil.
+More specifically, $f'(x) = 1 - \tanh^2(x)$ and thus $f'(4) = 0.0013$. Consequently, optimization will get stuck for a long time before we make progress.
+
+![Function Plot](Images/VanishingGradient.svg)
 
 ### 🔹 Impact:
 - Slows down or **prevents learning** in deep networks.
