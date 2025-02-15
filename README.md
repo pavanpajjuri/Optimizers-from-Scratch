@@ -167,24 +167,467 @@ def newton(eta = 1, c = torch.tensor(0.5), num_epochs = 10):
     return results
 ```
 
-![Function Plot](Images/NewtonMethod.png)
+<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
 
 ---
 
-## **Advantages of Newton’s Method**
+### Advantages
 - **Faster convergence**: Newton's method has a quadratic convergence rate, making it significantly faster near the optimum.
 - **Effective for convex functions**: Works well when the Hessian is positive definite.
 
-## **Disadvantages of Newton’s Method**
+### Disadvantages
 - **Computational cost**: Computing the Hessian and its inverse is expensive, especially in high-dimensional spaces.
 - **Hessian issues**: May fail or perform poorly if the Hessian is singular, ill-conditioned, or not positive definite.
 - Newton’s method is a lot faster **once** it has started working properly in convex problems.
 
----
-
 This method is particularly useful for optimization problems where the function is smooth and well-behaved, but it requires careful handling of the Hessian matrix to avoid computational bottlenecks or numerical instability.
 
+---
+# Stochastic Gradient Descent (SGD)
 
-🚀 **Follow for more insights on Deep Learning and Optimization!** 🚀
+While Newton's Method offers fast convergence by utilizing second-order derivatives (the Hessian matrix), it is computationally expensive for large datasets and high-dimensional models. This leads us to **Stochastic Gradient Descent (SGD)**, which provides a more scalable and efficient alternative.
+
+## Why Move from Newton’s Method to SGD?
+
+- **Scalability**: Newton's Method requires computing and inverting the Hessian matrix, which becomes infeasible for large-scale deep learning models.
+- **Efficiency**: SGD updates parameters using a single or small batch of data, making it suitable for handling large datasets.
+- **Better Generalization**: Introducing noise in updates (via random sampling) prevents overfitting, helping models generalize better to unseen data.
+- **Flexibility**: Unlike Newton’s method, which assumes a well-defined Hessian, SGD is applicable to non-convex optimization problems.
+
+## Stochastic Gradient Descent (SGD)
+
+SGD updates model parameters using only a random subset (mini-batch) of the training data rather than the full dataset. The update rule is:
+
+$$
+x_{t+1} = x_t - \eta \nabla f(x_t)
+$$
+
+where:
+- $$x_t$$ is the parameter vector at iteration $$t$$.
+- $$\eta$$ is the learning rate, controlling the step size.
+- $$\nabla f(x_t)$$ is the gradient of the loss function at $$x_t$$.
+
+## **Dynamic Learning Rate**
+
+A **static learning rate** $$\eta$$ may not be optimal throughout training. To improve convergence, we use a **time-dependent learning rate** $$\eta(t)$$.
+
+Adjusting $$\eta$$ over time is crucial:
+- **Too fast decay** → Stops optimization prematurely.
+- **Too slow decay** → Wastes time in optimization.
+
+### **Common Learning Rate Schedules:**
+
+**Piecewise Constant**  
+   The learning rate remains constant for fixed intervals and decreases at predefined steps:
+
+$$
+\eta(t) = \eta_i \quad \text{if} \quad t_i \leq t \leq t_{i+1}
+$$
+
+
+```python
+
+       
+```
+<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+
+**Exponential Decay**  
+   The learning rate decays exponentially over time:
+   
+$$
+\eta(t) = \eta_0 \cdot e^{-\lambda t}
+$$
+   
+where $$\lambda$$ is the decay rate.
+
+
+```python
+
+       
+```
+<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+
+**Polynomial Decay**  
+   The learning rate follows a polynomial decay rule:
+   
+$$
+\eta(t) = \eta_0 \cdot (\beta t + 1)^{-\alpha}
+$$
+
+where $$\beta$$ and $$\alpha$$ control the decay rate.
+
+```python
+
+       
+```  
+<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+
+
+### Advantages  
+- Computationally efficient – Updates are based on small batches rather than the full dataset.  
+- Handles large-scale data – Suitable for deep learning with millions of parameters.  
+- Prevents overfitting – The noise in updates helps generalization.  
+- Adaptability – Works well with adaptive learning rate techniques like Adam, RMSprop.  
+
+### Disadvantages  
+- Noisy convergence – Updates fluctuate due to random sampling.  
+- Requires careful tuning – Learning rate selection significantly affects performance.  
+- Slower convergence – Compared to second-order methods like Newton’s Method.  
+
+# Mini-batch Stochastic Gradient Descent (Mini-batch SGD)
+
+## Why Move from SGD to Mini-batch SGD?
+
+In the past, we took it for granted that we would read *minibatches* of data rather than single observations to update parameters. Now, we provide a brief justification for this transition.
+
+Processing single observations requires performing many individual matrix-vector (or even vector-vector) multiplications. This is computationally expensive and incurs significant overhead within deep learning frameworks. This overhead applies to both inference (evaluating a network on data) and gradient computation for parameter updates.
+
+Instead of computing the gradient for a single observation:
+
+$$
+g_t = \partial_w f(x_t, w)
+$$
+
+we compute it for a **minibatch** of observations:
+
+$$
+g_t = \partial_w \frac{1}{|B_t|} \sum_{i \in B_t} f(x_i, w)
+$$
+
+where:
+- **$$g_t$$** is the gradient at iteration **$$t$$**.
+- **$$B_t$$** is the minibatch of observations at iteration **$$t$$**.
+- **$$|B_t|$$** is the size of the minibatch.
+- **$$w$$** represents the model parameters.
+- **$$f(x_i, w)$$** is the loss function for the **$$i-th$$** observation.
+
+This change has several key benefits:
+
+- The **expectation** of the gradient remains unchanged, as all elements of the minibatch are drawn randomly from the training set.
+- The **variance** of the gradient is significantly reduced. Since the minibatch gradient consists of $$b = |\mathcal{B}_t|$$ independent gradients being averaged, its standard deviation is reduced by a factor of $$b^{-\frac{1}{2}}$$.
+
+### Choosing the Right Minibatch Size
+
+A larger minibatch size can reduce variance, leading to more stable updates. However, increasing the batch size beyond a certain point leads to diminishing returns due to the linear increase in computational cost. 
+
+In practice, minibatches are chosen to balance **computational efficiency** and **memory limitations** of GPUs.
+
+```python
+
+       
+```  
+<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+
+### Advantages
+- Improves computational efficiency by processing multiple samples simultaneously.
+- Reduces gradient variance, leading to more stable updates.
+- Balances between noisy updates (SGD) and expensive full-batch computations.
+
+### Disadvantages
+- Requires tuning of minibatch size to balance efficiency and convergence speed.
+- May require more memory compared to standard SGD.
+- Can still be affected by noisy gradients if the batch size is too small.
+
+---
+
+# Momentum Optimization
+
+## Why Move from SGD to Momentum?
+
+Stochastic Gradient Descent (SGD) updates parameters using only a noisy approximation of the true gradient. This introduces significant challenges:
+
+- **High Variance**: The updates fluctuate due to noise, making convergence slower.
+- **Poor Handling of Ill-Conditioned Problems**: When some directions require much smaller steps than others (e.g., a narrow canyon-shaped loss function), SGD struggles to make consistent progress.
+- **Inefficient Averaging**: While minibatch SGD reduces variance by averaging over a batch, it does not utilize past gradients effectively.
+
+To address these issues, we introduce **Momentum Optimization**, which leverages a moving average of past gradients to provide more stable updates.
+
+## Basics
+
+Momentum optimization is an enhancement to gradient descent that accumulates past gradients to smooth updates. Instead of using only the most recent gradient, we compute an exponentially weighted moving average of past gradients.
+
+### Leaky Averages
+
+In minibatch SGD, the gradient is computed as:
+
+$$
+g_{t, t-1} = \frac{1}{|B_t|} \sum_{i \in B_t} h_{i, t-1}
+$$
+
+where
+
+$$
+h_{i, t-1} = \nabla_w f(x_i, w_{t-1})
+$$
+
+is the gradient for sample $$i$$ at time $$t-1$$.
+
+To benefit from variance reduction beyond minibatch averaging, we replace the gradient with a "leaky average" known as **velocity**:
+
+$$
+v_t = \beta v_{t-1} + g_{t, t-1}
+$$
+
+where $$\beta \in (0,1)$$ controls how much past gradients influence the current update.
+
+Expanding $$v_t$$ recursively:
+
+$$
+v_t = \sum_{\tau = 0}^{t-1} \beta^{\tau} g_{t-\tau, t-\tau-1}
+$$
+
+- A **large $$\beta$$** results in a longer-range average, smoothing updates more effectively.
+- A **small $$\beta$$** gives only a slight correction to the gradient.
+
+This moving average helps stabilize descent, reducing oscillations and making optimization more efficient.
+
+## The Momentum Method
+
+Momentum optimization modifies SGD by updating parameters using the **velocity** instead of the raw gradient:
+
+$$
+\begin{aligned}
+v_t &\leftarrow \beta v_{t-1} + g_{t, t-1}, \\
+x_t &\leftarrow x_{t-1} - \eta_t v_t.
+\end{aligned}
+$$
+
+- When $$\beta = 0$$, this reduces to standard gradient descent.
+- Larger $$\beta$$ values allow more stable updates and better convergence.
+
+Momentum is particularly useful when gradients oscillate in some directions while being well-aligned in others. It helps **accelerate learning in flatter directions** while **reducing oscillations in steep directions**.
+
+```python
+
+       
+```  
+<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+
+
+
+### Advantages
+- **Faster convergence**: Accumulates past gradients for smoother updates.
+- **Reduces oscillations**: Helps when the loss surface has sharp valleys.
+- **Works well for deep learning**: Often improves training stability and efficiency.
+
+### Disadvantages
+- **Hyperparameter tuning**: Choosing an optimal \( \beta \) is non-trivial.
+- **May overshoot minima**: Large momentum values can lead to instability.
+- **Additional memory cost**: Stores velocity values for each parameter.
+
+---
+
+# Adagrad Optimizer
+
+## Why Move from Momentum to Adagrad?
+
+While Momentum optimization improves upon standard stochastic gradient descent (SGD) by accelerating convergence and smoothing out oscillations, it has limitations:
+
+- It applies the same learning rate to all parameters, which is suboptimal for problems where different parameters require different learning rates.
+- It does not adapt to the scale of gradients, which can lead to inefficient updates.
+- In scenarios with sparse features, Momentum does not take into account the frequency of updates for each parameter.
+
+To address these issues, **Adagrad (Adaptive Gradient Algorithm)** modifies the learning rate dynamically for each parameter based on past gradient information.
+
+## Adagrad Algorithm
+
+Adagrad adapts the learning rate for each parameter using the sum of squared gradients. The update equations are:
+
+$$
+\begin{aligned}
+    g_t &= \frac{\partial}{\partial w} l(y_t, f(x_t, w_t)), \\
+    s_t &= s_{t-1} + g_t^2, \\
+    w_t &= w_{t-1} - \frac{\eta}{\sqrt{s_t + \epsilon}} \cdot g_t.
+\end{aligned}
+$$
+
+where:
+- $$g_t$$ is the gradient at time $$t$$,
+- $$s_t$$ accumulates the squared gradients,
+- $$\eta$$ is the learning rate,
+- $$\epsilon$$ is a small constant to prevent division by zero,
+- The updates are performed element-wise, adjusting each parameter's learning rate independently.
+
+```python
+
+       
+```  
+<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+
+
+### Advantages
+
+- **Adaptive Learning Rate**: Each parameter gets an individualized learning rate, making it effective for sparse data.
+- **No Manual Learning Rate Tuning**: Adapts learning rates based on gradient history, reducing the need for hyperparameter tuning.
+- **Works Well for Sparse Data**: Frequently updated parameters get smaller updates, while infrequent ones retain higher learning rates.
+
+### Disadvantages of Adagrad
+
+- **Continuous Learning Rate Decay**: Since $$s_t$$ keeps growing, the learning rate keeps decreasing, which may slow or stop learning.
+- **Not Ideal for Deep Learning**: In deep networks, the decay can become too aggressive, leading to vanishing updates.
+
+---
+
+# RMSProp Optimizer
+
+## Why Move from Adagrad to RMSProp?
+
+While **Adagrad** is useful due to its ability to adjust the learning rate for each parameter based on its gradient history, it suffers from a key limitation: **the learning rate continually decays** as the algorithm progresses, following a schedule of **$$O(t^{-1/2})$$**. This is suitable for convex problems but is **not ideal for non-convex problems**, especially in deep learning.
+
+In deep learning, this continuous decay of the learning rate can lead to **very small updates in later stages** of training, causing the algorithm to converge prematurely. The key issue with Adagrad is that it **accumulates the squared gradients** into a state vector that keeps growing without bound. This results in the learning rate decreasing faster over time, which can significantly slow down the training process, especially in problems with a **non-convex landscape**.
+
+To address this, **RMSProp (Root Mean Square Propagation)** was proposed. RMSProp modifies Adagrad by introducing a **leaky average** of the squared gradients, allowing the algorithm to continue learning at an appropriate pace without the unbounded accumulation of gradient information.
+
+## RMSProp Algorithm
+
+The RMSProp algorithm uses a **moving average** of the squared gradients to adjust the learning rate for each parameter dynamically, decoupling the rate scheduling from the coordinate-adaptive learning rates.
+
+The update equations for RMSProp are:
+
+$$
+\begin{aligned}
+    s_t & \leftarrow \gamma s_{t-1} + (1 - \gamma) g_t^2, \\
+    x_t & \leftarrow x_{t-1} - \frac{\eta}{\sqrt{s_t + \epsilon}} \odot g_t.
+\end{aligned}
+$$
+
+Where:
+- $$g_t$$ is the gradient at time step $$t$$,
+- $$s_t$$ is the leaky average of squared gradients,
+- $$\eta$$ is the learning rate,
+- $$\gamma$$ is the decay factor for the moving average, typically set between 0.9 and 0.99,
+- $$\epsilon$$ is a small constant (often $$10^{-6}$$) to avoid division by zero.
+
+The key difference from Adagrad is the use of a **leaky average** for $$s_t$$, which prevents the learning rate from decaying too quickly.
+
+Expanding the definition of $$s_t$$:
+
+$$
+\begin{aligned}
+s_t &= (1 - \gamma) g_t^2 + \gamma s_{t-1}, \\
+    &= (1 - \gamma) \left(g_t^2 + \gamma g_{t-1}^2 + \gamma^2 g_{t-2}^2 + \ldots \right).
+\end{aligned}
+$$
+
+The sum of weights $$1 + \gamma + \gamma^2 + \ldots$$ is normalized to $$\frac{1}{1 - \gamma}$$, giving a **half-life** time for past observations of $$\gamma^{-1}$$.
+
+```python
+
+       
+```  
+<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+
+## Advantages
+
+- **Prevents Learning Rate Decay**: The leaky average of squared gradients prevents the learning rate from decaying too rapidly, allowing for continued learning in non-convex problems like deep learning.
+- **Coordinates Adaptively**: Just like Adagrad, RMSProp applies an adaptive learning rate to each parameter based on its gradient history, which is beneficial for sparse data and non-convex optimization.
+- **Improved Convergence**: The normalization of gradient history and dynamic learning rates make RMSProp more effective for non-convex problems, leading to better convergence in deep learning.
+
+## Disadvantages
+
+- **Hyperparameter Tuning**: The decay parameter $$\gamma$$ and learning rate $$\eta$$ still need to be carefully tuned for optimal performance.
+- **Sensitive to Initialization**: RMSProp can be sensitive to the choice of initial parameters, especially for deep neural networks, where improper initialization might cause instability during training.
+
+--- 
+
+# Adam Optimizer
+
+Adam (short for **Adaptive Moment Estimation**) is one of the most popular optimization algorithms in deep learning due to its combination of advantages from other optimization methods. It is a robust and efficient learning algorithm that adapts the learning rate based on both the first moment (momentum) and the second moment (variance) of the gradients. Let's go over why we choose Adam over other algorithms and what makes it so effective.
+
+## Why Choose Adam?
+
+### 1. **Combines Best Features from Multiple Optimizers**
+Adam combines the advantages of several other optimization techniques:
+- **SGD** (Stochastic Gradient Descent) for efficient gradient-based optimization.
+- **Momentum** to accelerate convergence by considering past gradients.
+- **RMSProp** to adapt the learning rate based on the magnitude of recent gradients.
+
+These characteristics make Adam a very versatile and powerful optimizer, particularly in deep learning where optimization landscapes can be non-convex and complex.
+
+### 2. **Adaptive Learning Rate**
+Adam uses adaptive learning rates for each parameter, much like **Adagrad** and **RMSProp**. However, Adam refines this by using both the first moment (momentum) and the second moment (variance) of the gradients, allowing the algorithm to adjust the learning rate dynamically. This helps overcome the problem of the learning rate becoming too small, as seen with **Adagrad**, and prevents premature convergence.
+
+### 3. **Bias Correction**
+Adam incorporates **bias correction** for both momentum and variance estimates. Early in training, the first and second moments are initialized as zero, causing a bias toward smaller values. Adam corrects for this bias to ensure the updates are accurate, particularly in the initial stages of training.
+
+### 4. **Efficient for Large Datasets**
+Adam is computationally efficient and requires little memory, making it highly suitable for training large models with large datasets. This efficiency makes Adam a go-to choice for training deep learning models on large-scale problems.
+
+## The Adam Algorithm
+
+The core idea behind Adam is the use of **exponentially weighted moving averages (EWMA)** to estimate both the momentum and the second moment of the gradients. The update rules for Adam are as follows:
+
+### 1. **Update Momentum and Second Moment Estimates**
+At each timestep $$t$$, Adam maintains two estimates:
+- The momentum estimate $$v_t$$, which captures the moving average of the past gradients.
+- The second moment estimate $$s_t$$, which captures the moving average of the squared gradients.
+
+The equations for these updates are:
+
+$$
+v_t \leftarrow \beta_1 v_{t-1} + (1 - \beta_1) g_t,
+$$
+
+$$
+s_t \leftarrow \beta_2 s_{t-1} + (1 - \beta_2) g_t^2,
+$$
+
+Where:
+- $$g_t$$ is the gradient at timestep $$t$$,
+- $$\beta_1$$ and $$\beta_2$$ are the momentum and variance decay parameters (typically set to $$\beta_1 = 0.9$$ and $$\beta_2 = 0.999$$).
+
+### 2. **Bias Correction**
+To correct the bias introduced by the initial values of $$v_t$$ and $$s_t$$, we use bias-corrected estimates:
+
+$$
+\hat{v}_t = \frac{v_t}{1 - \beta_1^t}, \quad \hat{s}_t = \frac{s_t}{1 - \beta_2^t}.
+$$
+
+### 3. **Gradient Rescaling**
+Adam then rescales the gradient using the bias-corrected momentum and variance estimates:
+
+$$
+g_t' = \frac{\eta \hat{v}_t}{\sqrt{\hat{s}_t} + \epsilon},
+$$
+
+Where:
+- $$\eta$$ is the learning rate,
+- $$\epsilon$$ is a small constant (e.g., $$10^{-6}$$) to prevent division by zero.
+
+### 4. **Update the Parameters**
+Finally, the parameters are updated as follows:
+
+$$
+x_t \leftarrow x_{t-1} - g_t'.
+$$
+
+This update rule incorporates both momentum and adaptive learning rates, ensuring efficient and stable convergence.
+
+```python
+
+       
+```  
+<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+
+## Advantages 
+
+- **Combines Multiple Optimizers**: Adam blends the strengths of SGD, momentum, Adagrad, and RMSProp, making it one of the most robust optimizers.
+- **Adaptive Learning Rates**: Adam adjusts the learning rate for each parameter based on the first and second moments of the gradients, improving training efficiency.
+- **Bias Correction**: By correcting for the bias during early stages of training, Adam ensures that updates are accurate and stable even in the beginning.
+- **Efficient**: Adam is computationally efficient and requires less memory, making it a great choice for training deep neural networks on large datasets.
+- **Works Well on Non-Convex Problems**: Unlike traditional gradient descent, Adam is particularly suited for non-convex optimization problems, commonly encountered in deep learning.
+
+## Disadvantages
+
+- **Sensitive to Hyperparameters**: Like most optimizers, Adam can be sensitive to its hyperparameters ($$\beta_1, \beta_2, \eta$$). If the values are not chosen carefully, Adam may not converge optimally.
+- **Poor Performance on Small Batches**: When using very small minibatches, Adam may experience high variance in the estimates, which could lead to instability in the training process.
+- **Memory Intensive**: Although Adam is efficient in terms of computation, it still requires memory to store the momentum and variance estimates for each parameter, which could become an issue for extremely large models.
+
+## Conclusion
+
+Adam is a very powerful optimizer that combines momentum, RMSProp, and adaptive learning rates into a single framework. This combination allows it to efficiently train deep learning models, especially on non-convex problems. However, like all optimization algorithms, it requires careful tuning of hyperparameters to work effectively. Despite its potential drawbacks, Adam has become the default choice for many deep learning tasks due to its speed, adaptability, and robustness.
+
+---
+**Follow for more insights on Deep Learning and Optimization!** 🚀
 
 
