@@ -226,8 +226,31 @@ $$
 
 
 ```python
+def sgd (x1, x2, f_grad, eta = 0.1, lr_schedule = lambda : 1):
+    g1,g2 = f_grad(x1,x2)
+    g1 += torch.normal(0.0, 1, (1,)).item()
+    g2 += torch.normal(0.0, 1, (1,)).item() 
 
-       
+    eta_t = eta * lr_schedule()
+    x1 -= eta_t * g1
+    x2 -= eta_t * g2
+
+    return x1,x2
+
+x1, x2 = -5, -5
+eta = 0.01
+lr_schedule = lambda : 1 # constant learning rate
+
+steps = 100
+trajectory = [(x1,x2)]
+
+for _ in range(steps):
+    x1,x2 = sgd(x1,x2, f_grad, eta, lr_schedule)
+    trajectory.append((x1,x2))
+
+print(f"Epoch {steps}, x1: {x1}, x2: {x2}\n")
+
+plot_trajectory(f, trajectory, label = 'SGD Trajectory', title = 'SGD Trajectory')       
 ```
 <img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
 
@@ -242,7 +265,26 @@ where $$\lambda$$ is the decay rate.
 
 
 ```python
+def exponential_lr():
+    # Global variable that is defined outside this function and updated inside
+    global t
+    t += 1
+    return np.exp(-0.1 * t)
 
+t = 1
+lr_schedule = exponential_lr
+
+x1, x2 = -5, -5
+eta = 0.01
+steps = 100
+trajectory = [(x1,x2)]
+
+for _ in range(steps):
+    x1,x2 = sgd(x1,x2, f_grad, eta, lr_schedule)
+    trajectory.append((x1,x2))
+
+print(f"Epoch {steps}, x1: {x1}, x2: {x2}\n")
+plot_trajectory(f, trajectory, label = 'SGD Trajectory', title = 'SGD Trajectory with exponential learning rate decay')
        
 ```
 <img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
@@ -257,8 +299,27 @@ $$
 where $$\beta$$ and $$\alpha$$ control the decay rate.
 
 ```python
+def polynomial_lr():
+    # Global variable that is defined outside this function and updated inside
+    global t
+    t += 1
+    return (1 + 0.1 * t) ** (-0.5)
 
-       
+
+t = 1
+lr_schedule = polynomial_lr
+
+x1, x2 = -5, -5
+eta = 0.01
+steps = 100
+trajectory = [(x1,x2)]
+
+for _ in range(steps):
+    x1,x2 = sgd(x1,x2, f_grad, eta, lr_schedule)
+    trajectory.append((x1,x2))
+
+print(f"Epoch {steps}, x1: {x1}, x2: {x2}\n")
+plot_trajectory(f, trajectory, label = 'SGD Trajectory', title = 'SGD Trajectory with polynomial learning rate')
 ```  
 <img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
 
@@ -313,8 +374,45 @@ A larger minibatch size can reduce variance, leading to more stable updates. How
 In practice, minibatches are chosen to balance **computational efficiency** and **memory limitations** of GPUs.
 
 ```python
+def f_grad_batch(X_batch):
+    grads = np.zeros_like(X_batch)
+    for i in range(X_batch.shape[0]):
+        x1, x2 = X_batch[i]
+        g1, g2 = f_grad(x1, x2)
+        # Add small Gaussian noise
+        g1 += np.random.normal(0.0, 0.1)  # Reduced noise variance
+        g2 += np.random.normal(0.0, 0.1)
+        grads[i] = [g1, g2]
+    return grads
 
-       
+
+# Minibatch SGD function
+def minibatch_sgd(X, batch_size, eta=0.1, num_epochs=10):
+    n_samples = X.shape[0]
+    trajectory = []  # Track the optimization path
+    # x1, x2 = -5,-5  # Start at the mean of the data
+    x = X.mean(axis = 0)
+    x1,x2 = x[0], x[1]
+    trajectory.append((x1, x2))
+
+    for epoch in range(num_epochs):
+        # Shuffle data
+        np.random.shuffle(X)
+        for i in range(0, n_samples, batch_size):
+            # Minibatch
+            X_batch = X[i:i + batch_size]
+            # Compute average gradient for the batch
+            grads = f_grad_batch(X_batch)
+            avg_grad = grads.mean(axis=0)
+            # Gradient update
+            X[i:i + batch_size, 0] -= eta * avg_grad[0]
+            X[i:i + batch_size, 1] -= eta * avg_grad[1]
+            x = X.mean(axis = 0)
+            x1,x2 = x[0], x[1]
+            # Track trajectory
+        trajectory.append((x1, x2))
+
+    return trajectory
 ```  
 <img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
 
@@ -398,8 +496,37 @@ $$
 Momentum is particularly useful when gradients oscillate in some directions while being well-aligned in others. It helps **accelerate learning in flatter directions** while **reducing oscillations in steep directions**.
 
 ```python
+# Momentum function
+def momentum(X, batch_size, eta=0.1, num_epochs=10, beta = 0.25):
+    n_samples = X.shape[0]
+    trajectory = []  # Track the optimization path
+    
+    x = X.mean(axis = 0)
+    x1,x2 = x[0], x[1]
+    v1, v2 = 0,0
+    trajectory.append((x1, x2))
 
-       
+    for epoch in range(num_epochs):
+        # Shuffle data
+        np.random.shuffle(X)
+        for i in range(0, n_samples, batch_size):
+            # Minibatch
+            X_batch = X[i:i + batch_size]
+            # Compute average gradient for the batch
+            grads = f_grad_batch(X_batch)
+            avg_grad = grads.mean(axis=0)
+            v1 = beta * v1 + (1-beta)*avg_grad[0]
+            v2 = beta * v2 + (1-beta)*avg_grad[1]
+        
+            # Gradient update
+            X[i:i + batch_size, 0] -= eta * v1
+            X[i:i + batch_size, 1] -= eta * v2
+            x = X.mean(axis = 0)
+            x1,x2 = x[0], x[1]
+            # Track trajectory
+        trajectory.append((x1, x2))
+
+    return trajectory
 ```  
 <img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
 
@@ -449,8 +576,40 @@ where:
 - The updates are performed element-wise, adjusting each parameter's learning rate independently.
 
 ```python
+# Adagrad SGD function
+def adagrad(X, batch_size, eta=0.1, num_epochs=10):
+    n_samples = X.shape[0]
+    trajectory = []  # Track the optimization path
+    
+    x = X.mean(axis = 0)
+    x1,x2 = x[0], x[1]
+    s1, s2 = 0,0
+    eps = 1e-6
+    trajectory.append((x1, x2))
 
-       
+    for epoch in range(num_epochs):
+        # Shuffle data
+        np.random.shuffle(X)
+        for i in range(0, n_samples, batch_size):
+            # Minibatch
+            X_batch = X[i:i + batch_size]
+            # Compute average gradient for the batch
+            grads = f_grad_batch(X_batch)
+            avg_grad = grads.mean(axis=0)
+            g1 = avg_grad[0]
+            g2 = avg_grad[1]
+            s1 += g1**2
+            s2 += g2**2
+        
+            # Gradient update
+            X[i:i + batch_size, 0] -= eta / np.sqrt(s1 + eps) * g1
+            X[i:i + batch_size, 1] -= eta / np.sqrt(s2 + eps) * g2
+            x = X.mean(axis = 0)
+            x1,x2 = x[0], x[1]
+            # Track trajectory
+        trajectory.append((x1, x2))
+
+    return trajectory
 ```  
 <img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
 
@@ -512,8 +671,42 @@ $$
 The sum of weights $$1 + \gamma + \gamma^2 + \ldots$$ is normalized to $$\frac{1}{1 - \gamma}$$, giving a **half-life** time for past observations of $$\gamma^{-1}$$.
 
 ```python
+# RMSProp function
+def rmsprop(X, batch_size, eta=0.1, num_epochs=10, gamma = 0.9):
+    n_samples = X.shape[0]
+    trajectory = []  # Track the optimization path
+    
+    x = X.mean(axis = 0)
+    x1,x2 = x[0], x[1]
+    s1, s2 = 0,0
+    eps = 1e-6
+    trajectory.append((x1, x2))
 
-       
+    for epoch in range(num_epochs):
+        # Shuffle data
+        np.random.shuffle(X)
+        for i in range(0, n_samples, batch_size):
+            # Minibatch
+            X_batch = X[i:i + batch_size]
+            # Compute average gradient for the batch
+            grads = f_grad_batch(X_batch)
+            avg_grad = grads.mean(axis=0)
+            g1 = avg_grad[0]
+            g2 = avg_grad[1]
+            s1 = gamma * s1 + (1-gamma) * g1**2
+            s2 = gamma * s2 + (1-gamma) * g2**2
+        
+            # Gradient update
+            # X[:,0] -= eta / np.sqrt(s1 + eps) * g1
+            # X[:,1] -= eta / np.sqrt(s2 + eps) * g2
+            X[i:i + batch_size, 0] -= eta / np.sqrt(s1 + eps) * g1
+            X[i:i + batch_size, 1] -= eta / np.sqrt(s2 + eps) * g2
+            x = X.mean(axis = 0)
+            x1,x2 = x[0], x[1]
+            # Track trajectory
+        trajectory.append((x1, x2))
+
+    return trajectory
 ```  
 <img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
 
@@ -604,8 +797,54 @@ $$
 This update rule incorporates both momentum and adaptive learning rates, ensuring efficient and stable convergence.
 
 ```python
+# Adam function
+def adam(X, batch_size, eta=0.1, num_epochs=10, beta1 = 0.9, beta2 = 0.999):
+    n_samples = X.shape[0]
+    trajectory = []  # Track the optimization path
+    
+    x = X.mean(axis = 0)
+    x1, x2 = x[0], x[1]
+    v1, v2 = 0, 0
+    s1, s2 = 0, 0
+    eps = 1e-6
+    t = 0 # time step for bias correction
+    trajectory.append((x1, x2))
 
-       
+    for epoch in range(num_epochs):
+        # Shuffle data
+        np.random.shuffle(X)
+        for i in range(0, n_samples, batch_size):
+            t += 1
+            # Minibatch
+            X_batch = X[i:i + batch_size]
+            # Compute average gradient for the batch
+            grads = f_grad_batch(X_batch)
+            avg_grad = grads.mean(axis=0)
+            g1 = avg_grad[0]
+            g2 = avg_grad[1]
+            
+            v1 = beta1 * v1 + (1-beta1) * g1
+            v2 = beta1 * v2 + (1-beta1) * g2
+            s1 = beta2 * s1 + (1-beta2) * g1**2
+            s2 = beta2 * s2 + (1-beta2) * g2**2
+
+            # Bias-corrected moments
+            v1_corr = v1 / (1 - beta1**t)
+            v2_corr = v2 / (1 - beta1**t)
+            s1_corr = s1 / (1 - beta2**t)
+            s2_corr = s2 / (1 - beta2**t)
+        
+            # Gradient update
+            X[i:i + batch_size, 0] -= eta / (np.sqrt(s1_corr) + eps) * v1_corr
+            X[i:i + batch_size, 1] -= eta / (np.sqrt(s2_corr) + eps) * v2_corr
+
+            # Update trajectory
+            x = X.mean(axis = 0)
+            x1,x2 = x[0], x[1]
+            # Track trajectory
+        trajectory.append((x1, x2))
+
+    return trajectory
 ```  
 <img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
 
