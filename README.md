@@ -118,7 +118,6 @@ where:
 - **$$∇f(x_t)$$** is the gradient (first derivative) of **$$f(x)$$**.
 - **$$H_f$$** is the Hessian matrix (second derivative) of **$$f(x)$$**.
 
----
 
 ## Gradient Descent vs. Newton's Method
 
@@ -171,11 +170,11 @@ def newton(eta = 1, c = torch.tensor(0.5), num_epochs = 10):
 
 ---
 
-### Advantages
+## Advantages
 - **Faster convergence**: Newton's method has a quadratic convergence rate, making it significantly faster near the optimum.
 - **Effective for convex functions**: Works well when the Hessian is positive definite.
 
-### Disadvantages
+## Disadvantages
 - **Computational cost**: Computing the Hessian and its inverse is expensive, especially in high-dimensional spaces.
 - **Hessian issues**: May fail or perform poorly if the Hessian is singular, ill-conditioned, or not positive definite.
 - Newton’s method is a lot faster **once** it has started working properly in convex problems.
@@ -324,22 +323,24 @@ plot_trajectory(f, trajectory, label = 'SGD Trajectory', title = 'SGD Trajectory
 <img src="Images/SGD_poly.png" alt="Function Plot" width="500">
 
 
-### Advantages  
+## Advantages  
 - Computationally efficient – Updates are based on small batches rather than the full dataset.  
 - Handles large-scale data – Suitable for deep learning with millions of parameters.  
 - Prevents overfitting – The noise in updates helps generalization.  
 - Adaptability – Works well with adaptive learning rate techniques like Adam, RMSprop.  
 
-### Disadvantages  
+## Disadvantages  
 - Noisy convergence – Updates fluctuate due to random sampling.  
 - Requires careful tuning – Learning rate selection significantly affects performance.  
-- Slower convergence – Compared to second-order methods like Newton’s Method.  
+- Slower convergence – Compared to second-order methods like Newton’s Method.
+  
+---
 
 # Mini-batch Stochastic Gradient Descent (Mini-batch SGD)
 
 ## Why Move from SGD to Mini-batch SGD?
 
-In the past, we took it for granted that we would read *minibatches* of data rather than single observations to update parameters. Now, we provide a brief justification for this transition.
+In the past, we usually used it for granted that we would read *minibatches* of data rather than single observations to update parameters during Gradienr Descent. Now, we provide a brief justification for this transition.
 
 Processing single observations requires performing many individual matrix-vector (or even vector-vector) multiplications. This is computationally expensive and incurs significant overhead within deep learning frameworks. This overhead applies to both inference (evaluating a network on data) and gradient computation for parameter updates.
 
@@ -416,12 +417,12 @@ def minibatch_sgd(X, batch_size, eta=0.1, num_epochs=10):
 ```  
 <img src="Images/MinibatchSGD.png" alt="Function Plot" width="500">
 
-### Advantages
+## Advantages
 - Improves computational efficiency by processing multiple samples simultaneously.
 - Reduces gradient variance, leading to more stable updates.
 - Balances between noisy updates (SGD) and expensive full-batch computations.
 
-### Disadvantages
+## Disadvantages
 - Requires tuning of minibatch size to balance efficiency and convergence speed.
 - May require more memory compared to standard SGD.
 - Can still be affected by noisy gradients if the batch size is too small.
@@ -532,12 +533,12 @@ def momentum(X, batch_size, eta=0.1, num_epochs=10, beta = 0.25):
 
 
 
-### Advantages
+## Advantages
 - **Faster convergence**: Accumulates past gradients for smoother updates.
 - **Reduces oscillations**: Helps when the loss surface has sharp valleys.
 - **Works well for deep learning**: Often improves training stability and efficiency.
 
-### Disadvantages
+## Disadvantages
 - **Hyperparameter tuning**: Choosing an optimal $$\beta$$ is non-trivial.
 - **May overshoot minima**: Large momentum values can lead to instability.
 - **Additional memory cost**: Stores velocity values for each parameter.
@@ -614,13 +615,13 @@ def adagrad(X, batch_size, eta=0.1, num_epochs=10):
 <img src="Images/Adagrad.png" alt="Function Plot" width="500">
 
 
-### Advantages
+## Advantages
 
 - **Adaptive Learning Rate**: Each parameter gets an individualized learning rate, making it effective for sparse data.
 - **No Manual Learning Rate Tuning**: Adapts learning rates based on gradient history, reducing the need for hyperparameter tuning.
 - **Works Well for Sparse Data**: Frequently updated parameters get smaller updates, while infrequent ones retain higher learning rates.
 
-### Disadvantages of Adagrad
+## Disadvantages
 
 - **Continuous Learning Rate Decay**: Since $$s_t$$ keeps growing, the learning rate keeps decreasing, which may slow or stop learning.
 - **Not Ideal for Deep Learning**: In deep networks, the decay can become too aggressive, leading to vanishing updates.
