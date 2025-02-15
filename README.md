@@ -252,7 +252,7 @@ print(f"Epoch {steps}, x1: {x1}, x2: {x2}\n")
 
 plot_trajectory(f, trajectory, label = 'SGD Trajectory', title = 'SGD Trajectory')       
 ```
-<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+<img src="Images/SGD_piecewise.png" alt="Function Plot" width="500">
 
 **Exponential Decay**  
    The learning rate decays exponentially over time:
