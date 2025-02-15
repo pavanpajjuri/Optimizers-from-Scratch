@@ -139,7 +139,6 @@ $$
 x_{t+1} = x_t - H_f^{-1} \nabla f(x_t)
 $$
 
----
 Below is a Python implementation of Newton's method using PyTorch:
 
 ```python
@@ -168,7 +167,6 @@ def newton(eta = 1, c = torch.tensor(0.5), num_epochs = 10):
 
 <img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
 
----
 
 ## Advantages
 - **Faster convergence**: Newton's method has a quadratic convergence rate, making it significantly faster near the optimum.
