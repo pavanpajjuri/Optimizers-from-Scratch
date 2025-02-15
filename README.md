@@ -1,6 +1,6 @@
 # Optimizers-from-Scratch
 
-# Optimization in Deep Learning
+## Optimization in Deep Learning
 
 Optimization in deep learning is the process of adjusting model parameters to minimize a loss function. However, while optimization and deep learning share a common ground, their goals differ fundamentally.
 
@@ -13,9 +13,6 @@ Optimization in deep learning is the process of adjusting model parameters to mi
 ### Deep Learning's Goal:
 - Aims to build a model that **generalizes well** to unseen data, reducing **generalization error**.
 - Requires balancing **optimization** with **regularization** techniques to avoid **overfitting**.
-
-### Key Difference:
-- An optimizer might find a solution that **minimizes training loss perfectly**, but that doesn’t mean the model will **perform well on new data**.
 
 # Challenges in Optimization for Deep Learning
 
@@ -39,7 +36,6 @@ we can approximate the local minimum and global minimum of this function.
 - Using **momentum-based optimizers** (e.g., Adam, RMSProp) to escape local minima.
 - Applying **learning rate scheduling** to navigate better through the loss surface.
 
----
 
 ## Saddle Points
 Saddle points occur when the gradient is **zero**, but the point is **not a minimum** (it is higher in some directions and lower in others). In high-dimensional spaces, saddle points are more common than local minima.
@@ -56,7 +52,6 @@ Consider the function $f(x, y) = x^2 - y^2$. It has its saddle point at $(0, 0)$
 - Using **adaptive learning rate methods** like **Adam** or **AdaGrad** to speed up training.
 - Increasing **batch size** to stabilize gradients.
 
----
 
 ## Vanishing Gradients
 Vanishing gradients occur when gradients **become too small** during backpropagation, especially in deep networks. This makes it hard for earlier layers to learn meaningful representations.
@@ -75,7 +70,7 @@ More specifically, $f'(x) = 1 - \tanh^2(x)$ and thus $f'(4) = 0.0013$. Consequen
 - Implementing **batch normalization** to stabilize gradients.
 - Using **residual connections** (ResNets) to allow direct gradient flow.
 
----
+
 
 Deep learning optimization faces multiple challenges, but **modern techniques and algorithms** help mitigate these issues. By using **advanced optimizers**, **better activation functions**, and **network architectures**, we can improve convergence and achieve **better generalization**.
 
@@ -120,8 +115,8 @@ x_{t+1} = x_t - H_f^{-1} \nabla f(x_t)
 $$
 
 where:
-- **∇f(xₜ)** is the gradient (first derivative) of **f(x)**.
-- **H_f** is the Hessian matrix (second derivative) of **f(x)**.
+- **$$∇f(xₜ)$$** is the gradient (first derivative) of **$$f(x)$$**.
+- **$$H_f$$** is the Hessian matrix (second derivative) of **$$f(x)$$**.
 
 ---
 
