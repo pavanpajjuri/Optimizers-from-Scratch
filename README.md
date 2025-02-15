@@ -115,7 +115,7 @@ x_{t+1} = x_t - H_f^{-1} \nabla f(x_t)
 $$
 
 where:
-- **$$∇f(xₜ)$$** is the gradient (first derivative) of **$$f(x)$$**.
+- **$$∇f(x_t)$$** is the gradient (first derivative) of **$$f(x)$$**.
 - **$$H_f$$** is the Hessian matrix (second derivative) of **$$f(x)$$**.
 
 ---
@@ -130,8 +130,8 @@ x_{t+1} = x_t - \eta \nabla f(x_t)
 $$
 
 where:
-- **η** is the learning rate, a scalar that controls the step size.
-- **∇f(xₜ)** is the gradient (first derivative) of **f(x)** at **xₜ**.
+- **$$η$$** is the learning rate, a scalar that controls the step size.
+- **$$∇f(x_t)$$** is the gradient (first derivative) of **$$f(x)$$** at **$$xₜ$$**.
 
 ### **Newton's Method**
 Newton's Method incorporates second-order curvature (Hessian) for more precise updates:
