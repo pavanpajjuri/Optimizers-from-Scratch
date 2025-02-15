@@ -287,7 +287,7 @@ print(f"Epoch {steps}, x1: {x1}, x2: {x2}\n")
 plot_trajectory(f, trajectory, label = 'SGD Trajectory', title = 'SGD Trajectory with exponential learning rate decay')
        
 ```
-<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+<img src="Images/SGD_exp.png" alt="Function Plot" width="500">
 
 **Polynomial Decay**  
    The learning rate follows a polynomial decay rule:
@@ -321,7 +321,7 @@ for _ in range(steps):
 print(f"Epoch {steps}, x1: {x1}, x2: {x2}\n")
 plot_trajectory(f, trajectory, label = 'SGD Trajectory', title = 'SGD Trajectory with polynomial learning rate')
 ```  
-<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+<img src="Images/SGD_poly.png" alt="Function Plot" width="500">
 
 
 ### Advantages  
@@ -414,7 +414,7 @@ def minibatch_sgd(X, batch_size, eta=0.1, num_epochs=10):
 
     return trajectory
 ```  
-<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+<img src="Images/MinibatchSGD.png" alt="Function Plot" width="500">
 
 ### Advantages
 - Improves computational efficiency by processing multiple samples simultaneously.
@@ -528,7 +528,7 @@ def momentum(X, batch_size, eta=0.1, num_epochs=10, beta = 0.25):
 
     return trajectory
 ```  
-<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+<img src="Images/Momentum.png" alt="Function Plot" width="500">
 
 
 
@@ -538,7 +538,7 @@ def momentum(X, batch_size, eta=0.1, num_epochs=10, beta = 0.25):
 - **Works well for deep learning**: Often improves training stability and efficiency.
 
 ### Disadvantages
-- **Hyperparameter tuning**: Choosing an optimal \( \beta \) is non-trivial.
+- **Hyperparameter tuning**: Choosing an optimal $$\beta$$ is non-trivial.
 - **May overshoot minima**: Large momentum values can lead to instability.
 - **Additional memory cost**: Stores velocity values for each parameter.
 
@@ -611,7 +611,7 @@ def adagrad(X, batch_size, eta=0.1, num_epochs=10):
 
     return trajectory
 ```  
-<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+<img src="Images/Adagrad.png" alt="Function Plot" width="500">
 
 
 ### Advantages
@@ -708,7 +708,7 @@ def rmsprop(X, batch_size, eta=0.1, num_epochs=10, gamma = 0.9):
 
     return trajectory
 ```  
-<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+<img src="Images/RMSProp.png" alt="Function Plot" width="500">
 
 ## Advantages
 
@@ -846,7 +846,7 @@ def adam(X, batch_size, eta=0.1, num_epochs=10, beta1 = 0.9, beta2 = 0.999):
 
     return trajectory
 ```  
-<img src="Images/NewtonMethod.png" alt="Function Plot" width="500">
+<img src="Images/Adam.png" alt="Function Plot" width="500">
 
 ## Advantages 
 
