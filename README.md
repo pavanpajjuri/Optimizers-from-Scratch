@@ -130,7 +130,7 @@ $$
 
 where:
 - **$$η$$** is the learning rate, a scalar that controls the step size.
-- **$$∇f(x_t)$$** is the gradient (first derivative) of **$$f(x)$$** at **$$xₜ$$**.
+- **$$∇f(x_t)$$** is the gradient (first derivative) of **$$f(x)$$** at **$$x_t$$**.
 
 ### **Newton's Method**
 Newton's Method incorporates second-order curvature (Hessian) for more precise updates:
@@ -322,15 +322,15 @@ plot_trajectory(f, trajectory, label = 'SGD Trajectory', title = 'SGD Trajectory
 
 
 ## Advantages  
-- Computationally efficient – Updates are based on small batches rather than the full dataset.  
-- Handles large-scale data – Suitable for deep learning with millions of parameters.  
-- Prevents overfitting – The noise in updates helps generalization.  
-- Adaptability – Works well with adaptive learning rate techniques like Adam, RMSprop.  
+- **Computationally efficient:** Updates are based on small batches rather than the full dataset.  
+- **Handles large-scale data:** Suitable for deep learning with millions of parameters.  
+- **Prevents overfitting:** The noise in updates helps generalization.  
+- **Adaptability:** Works well with adaptive learning rate techniques like Adam, RMSprop.  
 
 ## Disadvantages  
-- Noisy convergence – Updates fluctuate due to random sampling.  
-- Requires careful tuning – Learning rate selection significantly affects performance.  
-- Slower convergence – Compared to second-order methods like Newton’s Method.
+- **Noisy convergence:** Updates fluctuate due to random sampling.  
+- **Requires careful tuning:** Learning rate selection significantly affects performance.  
+- **Slower convergence:** Compared to second-order methods like Newton’s Method.
   
 ---
 
